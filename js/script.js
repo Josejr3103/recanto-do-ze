@@ -2,8 +2,7 @@ let allProducts = [];
 let currentSearchToken = 0;
 let currentCategoryToken = 0;
 
-// API_URL é importada do config.js
-import { API_URL } from './config.js';
+const API_URL = 'https://api-recanto.onrender.com';
 
 // Função para obter o token de autenticação
 function getAuthToken() {
@@ -838,11 +837,11 @@ function adjustLayoutForScreenSize() {
     const searchBar = document.querySelector('.search-bar');
     const userLinks = document.querySelector('.user-links');
     const mainMenu = document.querySelector('.main-menu');
-    const departmentsToggle = document.getElementById('departments-toggle');
+    const departmentsBtn = document.getElementById('departments-toggle');
     const departmentsMenu = document.getElementById('departments-menu');
     
     // Se não encontrar os elementos necessários, sai da função
-    if (!header || !logo || !searchBar || !userLinks || !mainMenu || !departmentsToggle) {
+    if (!header || !logo || !searchBar || !userLinks || !mainMenu || !departmentsBtn) {
         console.warn('Elementos necessários não encontrados no DOM');
         return;
     }
@@ -852,10 +851,10 @@ function adjustLayoutForScreenSize() {
     
     if (isMobile) {
         // Cria a estrutura para dispositivos móveis
-        createMobileLayout(header, logo, searchBar, userLinks, departmentsToggle);
+        createMobileLayout(header, logo, searchBar, userLinks, departmentsBtn);
     } else {
         // Retorna para o layout desktop
-        restoreDesktopLayout(header, logo, searchBar, userLinks, mainMenu, departmentsToggle);
+        restoreDesktopLayout(header, logo, searchBar, userLinks, mainMenu, departmentsBtn);
     }
     
     // Atualiza o menu de departamentos

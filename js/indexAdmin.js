@@ -1,5 +1,5 @@
-// API_URL é importada do config.js
-import { API_URL } from './config.js';
+const API_URL = 'https://api-recanto.onrender.com';
+
 let currentSearchToken = 0;
 let currentCategoryToken = 0;
 
