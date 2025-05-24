@@ -2,7 +2,8 @@ let allProducts = [];
 let currentSearchToken = 0;
 let currentCategoryToken = 0;
 
-const API_URL = 'http://localhost:3001';
+// API_URL é importada do config.js
+import { API_URL } from './config.js';
 
 // Função para obter o token de autenticação
 function getAuthToken() {
