@@ -266,3 +266,70 @@ body.dark-theme {
     --text-dark: #f5f5f5;
     --card-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
+
+/* Estilos para o diálogo de renovação de sessão */
+.renewal-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.renewal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.renewal-content h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.renewal-content p {
+    margin: 0 0 1.5rem 0;
+    color: #666;
+}
+
+.renewal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.renewal-buttons button {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+#renewYes {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#renewYes:hover {
+    background-color: #45a049;
+}
+
+#renewNo {
+    background-color: #f44336;
+    color: white;
+}
+
+#renewNo:hover {
+    background-color: #da190b;
+} 

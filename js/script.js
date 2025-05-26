@@ -2,7 +2,6 @@ let allProducts = [];
 let currentSearchToken = 0;
 let currentCategoryToken = 0;
 
-const API_URL = 'https://api-recanto.onrender.com';
 
 // Função para obter o token de autenticação
 function getAuthToken() {
@@ -430,6 +429,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         themeToggle.addEventListener('click', toggleTheme);
     }
     
+    // Configura o menu de departamentos
+    setupDepartmentsMenu();
+    
     // Carrega os produtos
     await fetchAllProductsAndStore();
     fetchFeaturedProducts();
@@ -792,37 +794,101 @@ async function fetchAllProductsAndStore() {
 
 function ajustarMenu() {
         const mainMenu = document.querySelector('.main-menu');
-        const departamentosMenu = document.querySelector('#departments-menu ul');
-        if (!mainMenu || !departamentosMenu) return;
+        const departmentsMenu = document.querySelector('#departments-menu ul');
+        const navContainer = document.querySelector('.main-nav');
+        const departmentsBtn = document.getElementById('departments-toggle');
+        // Adicionar referência ao botão de busca/ícone, se houver, que ocupa espaço no main-nav
+        const searchIcon = document.querySelector('.search-bar button'); // Assumindo que o ícone de busca está dentro da search-bar
+        // Adicionar referência aos ícones de usuário no header superior, se necessário subtrair espaço no nav
+        const userActions = document.querySelector('.user-actions');
 
-        // Itens fixos do menu de departamentos (não mexer neles)
-        const itensFixos = Array.from(departamentosMenu.querySelectorAll('li[data-fixo="true"]'));
+        if (!mainMenu || !departmentsMenu || !navContainer) return;
 
         // Move todos os itens dinâmicos de volta para a main-menu antes de recalcular
-        Array.from(departamentosMenu.querySelectorAll('li[data-dinamico="true"]')).forEach(li => {
+        Array.from(departmentsMenu.querySelectorAll('li[data-dinamico="true"]')).forEach(li => {
+            li.removeAttribute('data-dinamico');
             mainMenu.appendChild(li);
         });
 
-        // Agora verifica se algum item da main-menu está fora da tela e move para departamentos
+        // Calcula o espaço disponível na barra de navegação para os itens do menu principal
+        // Subtrai a largura do botão de departamentos (se visível), ícone de busca e ações de usuário
+        const navWidth = navContainer.getBoundingClientRect().width;
+        const departmentsBtnWidth = (departmentsBtn && departmentsBtn.style.display !== 'none') ? departmentsBtn.getBoundingClientRect().width + 20 : 0; // + padding/margin
+        // Ajuste conforme outros elementos no main-nav que ocupem espaço
+        // const searchIconWidth = searchIcon ? searchIcon.getBoundingClientRect().width + 10 : 0; // Exemplo se o ícone estivesse no main-nav
+        // const userActionsWidth = userActions ? userActions.getBoundingClientRect().width + 20 : 0; // Exemplo se userActions estivesse no main-nav
+
+        // Em telas maiores, o search-bar e user-actions estão no top-header, não no main-nav
+        // Precisamos considerar o espaço do botão de departamentos (quando visível) e talvez um padding geral
+        // Vamos usar uma abordagem baseada em largura acumulada dos itens vs. largura do container
+
+        let currentWidth = 0;
         const mainMenuItems = Array.from(mainMenu.children);
-        const navLimite = mainMenu.parentElement.getBoundingClientRect().right;
+        const itemsToMove = [];
 
+        // Calcula a largura total necessária para os itens do menu principal
         mainMenuItems.forEach(item => {
-            // Pega o texto do link do item da main-menu
-            const textoItem = item.textContent.trim().toUpperCase();
+             // Adiciona o item de volta ao mainMenu (se não estiver lá) para calcular a largura correta no layout atual
+             if(item.parentElement !== mainMenu) {
+                mainMenu.appendChild(item);
+             }
+            const itemWidth = item.getBoundingClientRect().width + 10; // Largura do item + margem/gap
+            
+            // Verifica se o item cabe na largura disponível (considerando itens anteriores e o botão de departamentos)
+            // NOTA: Este cálculo pode precisar de ajustes dependendo do flexbox/grid layout do .main-nav
+            // Uma abordagem alternativa e muitas vezes mais robusta é verificar a posição do item em relação ao container pai
 
-            // Verifica se já existe um item fixo com o mesmo texto no menu de departamentos
-            const existeFixo = itensFixos.some(li => {
-                const textoFixo = li.textContent.trim().toUpperCase();
-                return textoFixo === textoItem;
-            });
+             // Se o item estiver fora da tela (passando do limite direito do container pai)
+            const navLimite = navContainer.getBoundingClientRect().right; // Usar o limite do navContainer
+            const itemRight = item.getBoundingClientRect().right;
 
-            // Só move se não existir como fixo
-            if (!existeFixo && item.getBoundingClientRect().right > navLimite) {
-                item.setAttribute('data-dinamico', 'true');
-                departamentosMenu.appendChild(item);
+            if (itemRight > navLimite) {
+                 // Adiciona à lista de itens para mover
+                 itemsToMove.push(item);
             }
         });
+
+        // Move os itens que excederam o limite para o menu de departamentos
+        itemsToMove.forEach(item => {
+             // Pega o texto do link do item da main-menu para comparação
+            const textoItem = item.textContent.trim().toUpperCase();
+
+            // Verifica se já existe um item (fixo ou dinâmico) com o mesmo texto no menu de departamentos
+            const existeNoDepartamentos = Array.from(departmentsMenu.children).some(li => {
+                const textoDepartamento = li.textContent.trim().toUpperCase();
+                return textoDepartamento === textoItem;
+            });
+
+            // Só move se não existir no menu de departamentos
+            if (!existeNoDepartamentos) {
+                const clone = item.cloneNode(true); // Clonar para manter o original no DOM temporariamente se necessário
+                clone.setAttribute('data-dinamico', 'true');
+                
+                 // Adiciona o evento de clique ao clone - importante para que os itens movidos funcionem
+                const link = clone.querySelector('a');
+                if (link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const category = this.getAttribute('data-category');
+                        if (category) {
+                            showFilteredSection(category);
+                            departmentsMenu.classList.remove('open');
+                        }
+                    });
+                }
+
+                departmentsMenu.appendChild(clone);
+                 // Remover o item original do mainMenu após clonar/mover, se necessário. Cuidado com a iteração.
+                 // Remover após o loop é mais seguro.
+            }
+        });
+         // Remover os itens originais do mainMenu que foram movidos
+        itemsToMove.forEach(item => {
+             if(item.parentElement === mainMenu) { // Verifica se ainda está no mainMenu antes de remover
+                item.remove();
+             }
+        });
+
     }
 
 // Chame ao carregar e ao redimensionar
@@ -1014,31 +1080,47 @@ function togglePanel(panel) {
     }
 }
 
-// Configura o comportamento do menu de departamentos
+// Função para configurar o menu de departamentos
 function setupDepartmentsMenu() {
-    const deptToggle = document.getElementById('departments-toggle');
-    const deptMenu = document.getElementById('departments-menu');
+    const departmentsBtn = document.getElementById('departments-toggle');
+    const departmentsMenu = document.getElementById('departments-menu');
     
-    if (deptToggle && deptMenu) {
-        deptToggle.addEventListener('click', function(e) {
+    if (departmentsBtn && departmentsMenu) {
+        // Evento de clique no botão de departamentos
+        departmentsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
-            deptMenu.classList.toggle('open');
+            departmentsMenu.classList.toggle('open');
         });
         
-        // Fecha ao clicar fora
+        // Fecha o menu ao clicar fora
         document.addEventListener('click', function(e) {
-            if (!deptMenu.contains(e.target) && !deptToggle.contains(e.target)) {
-                deptMenu.classList.remove('open');
+            if (!departmentsMenu.contains(e.target) && !departmentsBtn.contains(e.target)) {
+                departmentsMenu.classList.remove('open');
             }
         });
+
+        // Adiciona eventos de clique nos itens do menu
+        const menuItems = departmentsMenu.querySelectorAll('a');
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const category = this.getAttribute('data-category');
+                if (category) {
+                    showFilteredSection(category);
+                    departmentsMenu.classList.remove('open');
+                }
+            });
+        });
     }
-    
-    // Para versão mobile
-    const deptToggleMobile = document.querySelector('.departments-btn-mobile');
-    if (deptToggleMobile && deptMenu) {
-        deptToggleMobile.addEventListener('click', function(e) {
+
+    // Configuração específica para mobile
+    const departmentsBtnMobile = document.querySelector('.departments-btn-mobile');
+    if (departmentsBtnMobile && departmentsMenu) {
+        departmentsBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
             e.stopPropagation();
-            deptMenu.classList.toggle('open');
+            departmentsMenu.classList.toggle('open');
         });
     }
 }

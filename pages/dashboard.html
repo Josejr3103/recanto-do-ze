@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,16 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="light-theme">
     <header>
         <div class="container">
             <div class="top-header">
-                <div class="logo">
-                    <img src="../img/Logo.png" alt="Recanto do Zé Logo">
-                    <h1>Recanto do Zé</h1>
+                <div class="logo-container">
+                    <a href="dashboard.html" class="logo">
+                        <img src="../img/Logo.png" alt="Recanto do Zé Logo">
+                        <h1>Recanto do Zé</h1>
+                    </a>
                 </div>
                 <div class="search-bar">
                     <input type="text" placeholder="Pesquise o seu produto" id="search-input">
@@ -141,8 +145,10 @@
                 </div>
             </section>
             <section class="newsletter">
-                <h3>Inscreva-se em nossa Newsletter</h3>
-                <p>Receba ofertas exclusivas, novidades e dicas diretamente no seu e-mail.</p>
+                <div class="newsletter-text">
+                    <h3>Inscreva-se em nossa Newsletter</h3>
+                    <p>Receba ofertas exclusivas, novidades e dicas diretamente no seu e-mail.</p>
+                </div>
                 <form id="newsletter-form">
                     <input type="email" placeholder="Seu melhor e-mail" required>
                     <button type="submit">INSCREVER</button>
@@ -215,7 +221,7 @@
             </div>
         </div>
     </footer>
-    
+
 
     <!-- Menu Lateral de Favoritos -->
     <aside id="favorites-sidebar" class="sidebar">
@@ -235,9 +241,11 @@
         <div class="sidebar-content" id="cart-list"></div>
         <div class="cart-summary" id="cart-summary"></div>
     </aside>
-    
+
     <!-- JavaScript Link -->
     <script src="../js/userState.js"></script>
+    <script src="../js/config.js"></script>
     <script src="../js/script.js"></script>
 </body>
+
 </html>

@@ -1,7 +1,6 @@
-const API_URL = 'https://api-recanto.onrender.com';
-
 let currentSearchToken = 0;
 let currentCategoryToken = 0;
+let currentMenuToken = 0;
 
 // Função para buscar e renderizar produtos
 async function fetchAndRenderProducts(query = '') {
@@ -235,14 +234,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Redireciona para dashboardAdmin.html ao clicar no logo
-    const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.style.cursor = 'pointer';
-        logo.addEventListener('click', function() {
-            window.location.href = 'dashboardAdmin.html';
-        });
-    }
+    // Configura os menus
+    setupMenus();
+
+    // Ajusta o menu ao carregar e ao redimensionar
+    window.addEventListener('resize', adjustAdminMenu);
+    adjustAdminMenu();
 });
 
 // Utilitário para abrir/fechar modais
@@ -361,12 +358,12 @@ document.getElementById('confirmDeleteBtn').onclick = async () => {
 
 // Função para filtrar produtos por categoria
 async function filterProductsByCategory(category) {
-    const container = document.getElementById('productsContainer');
-    container.innerHTML = '';
-
-    // Controle de token para evitar duplicação
+    // Incrementa o token de categoria
     currentCategoryToken++;
     const thisCategoryToken = currentCategoryToken;
+
+    const container = document.getElementById('productsContainer');
+    container.innerHTML = '';
 
     try {
         const response = await fetch(`${API_URL}/products`, {
@@ -400,10 +397,11 @@ async function filterProductsByCategory(category) {
                 );
             }
             
+            // Verifica se este é o token mais recente
+            if (thisCategoryToken !== currentCategoryToken) return;
+
             if (products.length === 0) {
-                if (thisCategoryToken === currentCategoryToken) {
-                    container.innerHTML = '<p class="no-results">Nenhum produto encontrado nesta categoria.</p>';
-                }
+                container.innerHTML = '<p class="no-results">Nenhum produto encontrado nesta categoria.</p>';
                 return;
             }
 
@@ -461,4 +459,179 @@ async function filterProductsByCategory(category) {
     } catch (error) {
         container.innerHTML = '<p>Erro ao carregar produtos.</p>';
     }
+}
+
+// Função para configurar os menus (principal e departamentos)
+function setupMenus() {
+    const departmentsBtn = document.getElementById('departments-toggle');
+    const departmentsMenu = document.getElementById('departments-menu');
+    const mainMenu = document.querySelector('.main-menu');
+    const navContainer = document.querySelector('.main-nav');
+    
+    // Função para lidar com o clique nos itens do menu
+    function handleMenuClick(e) {
+        e.preventDefault();
+        const category = this.getAttribute('data-category');
+        if (category) {
+            // Incrementa o token do menu
+            currentMenuToken++;
+            const thisMenuToken = currentMenuToken;
+
+            // Executa o filtro apenas se este for o token mais recente
+            if (thisMenuToken === currentMenuToken) {
+                filterProductsByCategory(category);
+                if (departmentsMenu.classList.contains('open')) {
+                    departmentsMenu.classList.remove('open');
+                }
+            }
+        }
+    }
+
+    if (departmentsBtn && departmentsMenu) {
+        // Evento de clique no botão de departamentos
+        departmentsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            departmentsMenu.classList.toggle('open');
+        });
+        
+        // Fecha o menu ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!departmentsMenu.contains(e.target) && !departmentsBtn.contains(e.target)) {
+                departmentsMenu.classList.remove('open');
+            }
+        });
+    }
+
+    // Função para ajustar os itens do menu
+    function adjustMenuItems() {
+        if (!mainMenu || !departmentsMenu) return;
+
+        const navWidth = navContainer.getBoundingClientRect().width;
+        const departmentsBtnWidth = departmentsBtn ? departmentsBtn.getBoundingClientRect().width + 20 : 0;
+        const createBtnWidth = document.querySelector('.create-product-btn')?.getBoundingClientRect().width + 20 || 0;
+        const availableWidth = navWidth - departmentsBtnWidth - createBtnWidth - 40;
+
+        const mainMenuItems = Array.from(mainMenu.children);
+        const departmentsList = departmentsMenu.querySelector('ul');
+        
+        // Limpa itens dinâmicos anteriores
+        Array.from(departmentsList.querySelectorAll('li[data-dinamico="true"]')).forEach(item => item.remove());
+        
+        // Marca itens originais como fixos
+        Array.from(departmentsList.querySelectorAll('li')).forEach(item => {
+            if (!item.hasAttribute('data-fixo')) {
+                item.setAttribute('data-fixo', 'true');
+            }
+        });
+
+        let currentWidth = 0;
+        const menuItems = [];
+
+        // Calcula a largura total necessária para cada item
+        mainMenuItems.forEach(item => {
+            const itemWidth = item.getBoundingClientRect().width + 10;
+            menuItems.push({ element: item, width: itemWidth });
+        });
+
+        // Distribui os itens entre o menu principal e o menu de departamentos
+        menuItems.forEach(({ element, width }) => {
+            if (currentWidth + width <= availableWidth) {
+                // Item cabe no menu principal
+                if (element.parentElement !== mainMenu) {
+                    const link = element.querySelector('a');
+                    if (link) {
+                        // Remove o elemento antigo e cria um novo sem eventos
+                        const newLink = link.cloneNode(true);
+                        link.parentNode.replaceChild(newLink, link);
+                        newLink.addEventListener('click', handleMenuClick);
+                    }
+                    mainMenu.appendChild(element);
+                }
+                currentWidth += width;
+            } else {
+                // Item vai para o menu de departamentos
+                const category = element.querySelector('a')?.dataset.category;
+                if (category && !departmentsList.querySelector(`li[data-category="${category}"]`)) {
+                    const clone = element.cloneNode(true);
+                    clone.setAttribute('data-dinamico', 'true');
+                    
+                    const link = clone.querySelector('a');
+                    if (link) {
+                        link.addEventListener('click', handleMenuClick);
+                    }
+                    
+                    departmentsList.appendChild(clone);
+                }
+            }
+        });
+    }
+
+    // Ajusta o menu ao carregar e ao redimensionar
+    window.addEventListener('resize', adjustMenuItems);
+    adjustMenuItems();
+
+    // Configuração inicial dos itens do menu principal
+    if (mainMenu) {
+        const mainMenuItems = mainMenu.querySelectorAll('a');
+        mainMenuItems.forEach(item => {
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            newItem.addEventListener('click', handleMenuClick);
+        });
+    }
+}
+
+// Função para ajustar o menu responsivo
+function adjustAdminMenu() {
+    const mainMenu = document.querySelector('.main-menu');
+    const departmentsMenu = document.querySelector('#departments-menu ul');
+    if (!mainMenu || !departmentsMenu) return;
+
+    // Limpa os itens dinâmicos anteriores
+    Array.from(departmentsMenu.querySelectorAll('li[data-dinamico="true"]')).forEach(item => {
+        item.remove();
+    });
+
+    // Marca os itens originais do departamentos como fixos
+    Array.from(departmentsMenu.querySelectorAll('li')).forEach(item => {
+        if (!item.hasAttribute('data-fixo')) {
+            item.setAttribute('data-fixo', 'true');
+        }
+    });
+
+    // Verifica se algum item da main-menu está fora da tela
+    const mainMenuItems = Array.from(mainMenu.children);
+    const navLimite = mainMenu.parentElement.getBoundingClientRect().right;
+
+    mainMenuItems.forEach(item => {
+        const textoItem = item.textContent.trim().toUpperCase();
+        
+        // Verifica se já existe um item fixo com o mesmo texto
+        const existeFixo = Array.from(departmentsMenu.querySelectorAll('li[data-fixo="true"]')).some(li => {
+            const textoFixo = li.textContent.trim().toUpperCase();
+            return textoFixo === textoItem;
+        });
+
+        // Se o item estiver fora da tela e não existir como fixo, move para o menu de departamentos
+        if (!existeFixo && item.getBoundingClientRect().right > navLimite) {
+            const clone = item.cloneNode(true);
+            clone.setAttribute('data-dinamico', 'true');
+            
+            // Adiciona o evento de clique ao clone
+            const link = clone.querySelector('a');
+            if (link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const category = this.getAttribute('data-category');
+                    if (category) {
+                        filterProductsByCategory(category);
+                        departmentsMenu.classList.remove('open');
+                    }
+                });
+            }
+            
+            departmentsMenu.appendChild(clone);
+        }
+    });
 }
