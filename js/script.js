@@ -602,7 +602,7 @@ async function renderCartSidebar() {
         <button class="confirm-purchase-btn">Confirmar compra</button>
     `;
     cartSummary.querySelector('.confirm-purchase-btn').onclick = async () => {
-        alert('Compra confirmada! (implemente a lógica de compra aqui)');
+        alert('Compra confirmada!');
         await clearCart();
         renderCartSidebar();
         // Atualiza contadores no header
