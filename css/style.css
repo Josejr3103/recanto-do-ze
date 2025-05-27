@@ -1636,6 +1636,48 @@ header .container {
     .departments-btn-mobile span {
         display: none;
     }
+
+    /* Novos estilos para o layout mobile do cabeçalho */
+    .header-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .header-top-row .logo-container {
+        margin-bottom: 0;
+    }
+
+    .header-top-row .user-actions {
+        width: auto;
+        justify-content: flex-end;
+        margin-top: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .header-top-row .user-actions > div,
+    .header-top-row .user-actions > button {
+        margin-left: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+     .header-top-row .user-actions > div span:not(.counter),
+     .header-top-row .user-actions > button span:not(.counter){
+        display: none;
+     }
+
+    .search-bar {
+        width: 100%;
+        margin: 0;
+    }
 }
 
 /* Ajustes para telas muito pequenas */

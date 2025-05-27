@@ -423,16 +423,18 @@ nav {
 }
 
 .product-info {
-    padding: 15px;
+    padding: 18px 20px 10px 20px;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
 }
 
-.product-info h3 {
-    font-size: 1rem;
-    margin: 0 0 5px 0;
+.product-title {
+    font-size: 1.1rem;
+    font-weight: bold;
     color: var(--text-dark);
+    margin-bottom: 2px;
 }
 
 .product-info p {
@@ -446,53 +448,59 @@ body.dark-theme .product-info p {
 }
 
 .product-tags {
-    margin: 5px 0 10px 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
+    margin: 5px 0;
 }
 
 .product-tag {
     display: inline-block;
     background-color: #e0e0e0;
     color: #333;
-    padding: 3px 8px;
+    padding: 2px 8px;
     border-radius: 12px;
-    font-size: 0.75em;
+    margin-right: 5px;
+    font-size: 0.8em;
 }
 
 .product-rating {
+    font-size: 1.1rem;
     color: #ffd700;
-    margin: 0 0 10px 0;
-    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.product-rating .votes {
+    color: #888;
+    font-size: 0.95rem;
 }
 
 .product-price {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-top: auto;
+    gap: 10px;
+    margin-top: 2px;
 }
 
 .original-price {
     text-decoration: line-through;
-    color: #999;
-    font-size: 0.9em;
+    color: #b0b0b0;
+    font-size: 1rem;
+    font-weight: normal;
 }
 
 .current-price {
-    color: var(--success);
+    color: var(--secondary-color);
+    font-size: 1.15rem;
     font-weight: bold;
 }
 
 .discount-badge {
-    background-color: var(--secondary-color);
-    color: var(--primary-color);
-    padding: 3px 7px;
+    background: #e74c3c;
+    color: #fff;
     border-radius: 4px;
-    font-size: 0.8em;
+    padding: 2px 8px;
+    font-size: 0.85em;
+    margin-left: 5px;
 }
 
 /* Responsividade */
@@ -775,7 +783,7 @@ body.dark-theme .product-info p {
 /* Estilização moderna para checkboxes de tags */
 .tags-checkbox-group {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 10px;
     max-height: 100px; /* Altura fixa da box */
     overflow-y: auto; /* Adiciona rolagem vertical */
@@ -783,7 +791,24 @@ body.dark-theme .product-info p {
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: var(--card-bg);
+
     margin-top: 10px;
+}
+
+.tag-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tag-checkbox input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.tag-checkbox label {
+    margin: 0;
+    font-weight: normal;
 }
 
 /* Estilização da barra de rolagem */
@@ -897,6 +922,7 @@ body.dark-theme .tag-checkbox label {
         max-width: 100%;
     }
 }
+
 
 /* Modo escuro para o modal */
 body.dark-theme .modal-content {

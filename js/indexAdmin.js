@@ -69,8 +69,8 @@ async function fetchAndRenderProducts(query = '') {
                         </button>
                     </div>
                     <div class="product-info">
-                        <h3>${product.name}</h3>
-                        <p>${product.description || ''}</p>
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-description">${product.description || ''}</p>
                         <div class="product-tags">${tagsHtml}</div>
                         <div class="product-rating">
                             <span class="stars">${stars}</span>
@@ -80,10 +80,12 @@ async function fetchAndRenderProducts(query = '') {
                             ${product.desconto ? 
                                 `<span class="original-price">R$ ${precoOriginal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>` 
                                 : ''}
-                            <span class="current-price">R$ ${precoComDesconto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                             ${product.desconto ? 
                                 `<span class="discount-badge">-${product.desconto}%</span>` 
                                 : ''}
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">R$ ${precoComDesconto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
                         </div>
                     </div>
                 `;
